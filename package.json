@@ -3,11 +3,11 @@
 	"type": "module",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "astro dev",
-		"build": "astro build",
-		"preview": "astro build && wrangler dev",
+		"dev": "XDG_CONFIG_HOME=./.config astro dev",
+		"build": "XDG_CONFIG_HOME=./.config astro build",
+		"preview": "XDG_CONFIG_HOME=./.config astro build && XDG_CONFIG_HOME=./.config wrangler dev",
 		"astro": "astro",
-		"deploy": "astro build && wrangler deploy",
+		"deploy": "XDG_CONFIG_HOME=./.config astro build && XDG_CONFIG_HOME=./.config wrangler deploy",
 		"cf-typegen": "wrangler types"
 	},
 	"dependencies": {

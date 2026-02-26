@@ -1,0 +1,188 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAllPosts } from '../../lib/posts';
+import { getUnsplashImageForSlug } from '../../lib/images';
+
+export function getStaticPaths() {
+	const posts = getAllPosts();
+
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: { post }
+	}));
+}
+
+interface Props {
+	post: import('../../lib/posts').Post;
+}
+
+const { post } = Astro.props as Props;
+const image = getUnsplashImageForSlug(post.slug);
+---
+
+<Layout title={post.title} description={post.excerpt}>
+	<article class="post">
+		<header class="post-header">
+			<p class="post-kicker">Health Hearty guide</p>
+			<h1>{post.title}</h1>
+			<p class="post-excerpt">{post.excerpt}</p>
+		</header>
+
+		<figure class="post-figure">
+			<img src={image.src} alt={post.title} loading="lazy" />
+			<figcaption>
+				Photo by{' '}
+				<a href={image.photographerUrl} target="_blank" rel="noopener noreferrer">
+					{image.photographerName}
+				</a>{' '}
+				on{' '}
+				<a href={image.unsplashUrl} target="_blank" rel="noopener noreferrer">
+					Unsplash
+				</a>
+			</figcaption>
+		</figure>
+
+		<section class="post-content" set:html={post.html} />
+
+		<footer class="post-footer">
+			<p>
+				<strong>Reminder:</strong> Health Hearty provides general health information and is not a
+				substitute for professional medical advice, diagnosis, or treatment. Always talk with a
+				qualified health provider about questions you have regarding a medical condition.
+			</p>
+		</footer>
+	</article>
+</Layout>
+
+<style>
+	.post {
+		max-width: 760px;
+		margin: 0 auto 3rem;
+	}
+
+	.post-header {
+		margin-bottom: 1.75rem;
+	}
+
+	.post-kicker {
+		margin: 0 0 0.4rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.16em;
+		color: #059669;
+	}
+
+	.post-header h1 {
+		margin: 0 0 0.6rem;
+		font-size: clamp(2rem, 2.6vw + 1.4rem, 2.7rem);
+		letter-spacing: -0.04em;
+	}
+
+	.post-excerpt {
+		margin: 0;
+		font-size: 1rem;
+		color: #4b5563;
+	}
+
+	.post-figure {
+		margin: 0 0 1.5rem;
+		border-radius: 20px;
+		overflow: hidden;
+		background: #f3f4f6;
+		box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+	}
+
+	.post-figure img {
+		display: block;
+		width: 100%;
+		height: auto;
+		max-height: 420px;
+		object-fit: cover;
+	}
+
+	.post-figure figcaption {
+		margin: 0;
+		padding: 0.55rem 0.9rem;
+		font-size: 0.8rem;
+		color: #6b7280;
+		background: rgba(17, 24, 39, 0.75);
+		color: #e5e7eb;
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.25rem;
+	}
+
+	.post-figure figcaption a {
+		color: inherit;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.post-content {
+		font-size: 1rem;
+		line-height: 1.7;
+		color: #111827;
+	}
+
+	.post-content p {
+		margin: 0 0 1rem;
+	}
+
+	.post-content h2,
+	.post-content h3,
+	.post-content h4 {
+		margin-top: 1.5rem;
+		margin-bottom: 0.75rem;
+		letter-spacing: -0.02em;
+	}
+
+	.post-content ul,
+	.post-content ol {
+		padding-left: 1.4rem;
+		margin-bottom: 1rem;
+	}
+
+	.post-content li + li {
+		margin-top: 0.3rem;
+	}
+
+	.post-content table {
+		border-collapse: collapse;
+		width: 100%;
+		margin: 1.25rem 0;
+		font-size: 0.95rem;
+	}
+
+	.post-content th,
+	.post-content td {
+		border: 1px solid #e5e7eb;
+		padding: 0.55rem 0.7rem;
+		text-align: left;
+	}
+
+	.post-content thead {
+		background-color: #f9fafb;
+	}
+
+	.post-footer {
+		margin-top: 2rem;
+		padding: 1.1rem 1.2rem;
+		border-radius: 14px;
+		background-color: #ecfdf5;
+		border: 1px solid #bbf7d0;
+		font-size: 0.9rem;
+		color: #065f46;
+	}
+
+	@media (max-width: 640px) {
+		.post {
+			margin-bottom: 2.25rem;
+		}
+
+		.post-figure {
+			margin-bottom: 1.25rem;
+		}
+	}
+</style>
+

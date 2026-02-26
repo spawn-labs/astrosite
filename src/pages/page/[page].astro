@@ -1,27 +1,46 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getPaginatedPosts } from '../lib/posts';
-import { getUnsplashImageForSlug } from '../lib/images';
+import Layout from '../../layouts/Layout.astro';
+import { getPaginatedPosts } from '../../lib/posts';
+import { getUnsplashImageForSlug } from '../../lib/images';
 
-const PAGE_SIZE = 12;
-const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
+export function getStaticPaths() {
+	const PAGE_SIZE = 12;
+	const { totalPages } = getPaginatedPosts(1, PAGE_SIZE);
+
+	return Array.from({ length: totalPages }, (_, index) => {
+		const page = index + 1;
+		const pageData = getPaginatedPosts(page, PAGE_SIZE);
+
+		return {
+			params: { page: String(page) },
+			props: pageData
+		};
+	});
+}
+
+interface Props {
+	posts: import('../../lib/posts').Post[];
+	currentPage: number;
+	totalPages: number;
+}
+
+const { posts, currentPage, totalPages } = Astro.props as Props;
 ---
 
 <Layout
-	title="Health Hearty"
-	description="Health Hearty is a collection of plain-language health and wellness articles to help you understand complex medical topics."
+	title={currentPage === 1 ? 'Health Hearty' : `Health Hearty – Page ${currentPage}`}
+	description="Browse Health Hearty articles across conditions, treatments, and wellness topics."
 >
 	<section class="hero">
 		<div class="hero-content">
-			<h1>Your companion for clearer health information.</h1>
+			<h1>Health Hearty articles</h1>
 			<p>
-				Explore in-depth articles on conditions, treatments, and everyday wellness topics, written in
-				language you don’t need a medical degree to understand.
+				Page {currentPage} of {totalPages}. Explore more plain-language health and wellness guides.
 			</p>
 		</div>
 	</section>
 
-	<section aria-label="Latest Health Hearty articles" class="posts-grid">
+	<section aria-label={`Health Hearty articles page ${currentPage}`} class="posts-grid">
 		{posts.map((post) => {
 			const image = getUnsplashImageForSlug(post.slug);
 			return (
@@ -57,8 +76,32 @@ const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
 		<nav class="pagination" aria-label="Pagination">
 			<span class="page-label">Page {currentPage} of {totalPages}</span>
 			<div class="page-links">
+				{currentPage > 1 && (
+					<a
+						href={currentPage === 2 ? '/' : `/page/${currentPage - 1}/`}
+						class="page-link"
+					>
+						Previous
+					</a>
+				)}
+				{Array.from({ length: totalPages }, (_, index) => {
+					const page = index + 1;
+					const href = page === 1 ? '/' : `/page/${page}/`;
+					const isCurrent = page === currentPage;
+					return (
+						<a
+							href={href}
+							class={`page-number ${isCurrent ? 'current' : ''}`}
+							aria-current={isCurrent ? 'page' : undefined}
+						>
+							{page}
+						</a>
+					);
+				})}
 				{currentPage < totalPages && (
-					<a href="/page/2/" class="page-link">Next page</a>
+					<a href={`/page/${currentPage + 1}/`} class="page-link">
+						Next
+					</a>
 				)}
 			</div>
 		</nav>
@@ -71,7 +114,7 @@ const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
 	}
 
 	.hero-content {
-		padding: 1.5rem 1.75rem;
+		padding: 1.25rem 1.6rem;
 		border-radius: 18px;
 		background: radial-gradient(circle at top left, #ecfdf3 0, #e0f2fe 55%, #fefce8 100%);
 		box-shadow: 0 20px 55px rgba(15, 23, 42, 0.12);
@@ -79,16 +122,15 @@ const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
 	}
 
 	.hero h1 {
-		margin: 0 0 0.65rem;
-		font-size: clamp(1.9rem, 2.4vw + 1.3rem, 2.6rem);
+		margin: 0 0 0.45rem;
+		font-size: clamp(1.6rem, 2vw + 1.1rem, 2.2rem);
 		letter-spacing: -0.04em;
 	}
 
 	.hero p {
 		margin: 0;
-		font-size: 0.98rem;
+		font-size: 0.95rem;
 		color: #4b5563;
-		max-width: 40rem;
 	}
 
 	.posts-grid {
@@ -190,12 +232,16 @@ const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.75rem;
 		font-size: 0.9rem;
 	}
 
 	.page-links {
 		display: flex;
-		gap: 0.5rem;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.4rem;
 	}
 
 	.page-link {
@@ -209,6 +255,28 @@ const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
 	.page-link:hover,
 	.page-link:focus-visible {
 		background-color: #f3f4f6;
+	}
+
+	.page-number {
+		min-width: 2rem;
+		text-align: center;
+		padding: 0.25rem 0.6rem;
+		border-radius: 999px;
+		border: 1px solid transparent;
+		text-decoration: none;
+		color: #4b5563;
+	}
+
+	.page-number.current {
+		background-color: #047857;
+		color: #f9fafb;
+		border-color: #047857;
+	}
+
+	.page-number:hover,
+	.page-number:focus-visible {
+		background-color: #f3f4f6;
+		color: #111827;
 	}
 
 	@media (max-width: 960px) {
@@ -233,11 +301,6 @@ const { posts, currentPage, totalPages } = getPaginatedPosts(1, PAGE_SIZE);
 		.post-image {
 			height: 190px;
 		}
-
-		.pagination {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.5rem;
-		}
 	}
 </style>
+

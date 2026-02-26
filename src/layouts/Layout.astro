@@ -1,23 +1,179 @@
+---
+import Logo from '../components/Logo.astro';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title = 'Health Hearty', description } = Astro.props as Props;
+const pageTitle = title === 'Health Hearty' ? title : `${title} | Health Hearty`;
+const canonical = new URL(Astro.url.pathname, 'https://healthhearty.com').toString();
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{pageTitle}</title>
+		<meta
+			name="description"
+			content={description ?? 'Health Hearty offers in-depth health, wellness, and medical information in plain language.'}
+		/>
+		<link rel="canonical" href={canonical} />
 	</head>
 	<body>
-		<slot />
+		<header class="site-header">
+			<a href="/" class="brand" aria-label="Health Hearty home">
+				<Logo />
+				<div class="brand-text">
+					<span class="brand-name">Health Hearty</span>
+					<span class="brand-tagline">Trusted health &amp; wellness insights</span>
+				</div>
+			</a>
+			<nav class="site-nav" aria-label="Primary">
+				<a href="/" class="nav-link">Home</a>
+				<a href="/privacy-policy/" class="nav-link">Privacy Policy</a>
+			</nav>
+		</header>
+		<main class="page-main">
+			<slot />
+		</main>
+		<footer class="site-footer">
+			<p>© {new Date().getFullYear()} Health Hearty. All rights reserved.</p>
+		</footer>
 	</body>
 </html>
 
 <style>
+	:root {
+		color-scheme: light;
+		--hh-bg: #f9fafb;
+		--hh-surface: #ffffff;
+		--hh-border: #e5e7eb;
+		--hh-text: #111827;
+		--hh-muted: #6b7280;
+		--hh-accent: #10b981;
+		--hh-accent-soft: rgba(16, 185, 129, 0.08);
+		--hh-radius-lg: 18px;
+		--hh-shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.12);
+	}
+
 	html,
 	body {
 		margin: 0;
+		padding: 0;
+		min-height: 100%;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+		background: radial-gradient(circle at top left, #ecfdf5 0, #eff6ff 40%, #f9fafb 80%);
+		color: var(--hh-text);
+	}
+
+	body {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		backdrop-filter: blur(16px);
+		background: linear-gradient(to bottom, rgba(249, 250, 251, 0.9), rgba(249, 250, 251, 0.75));
+		border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1.5rem;
+	}
+
+	.brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75rem;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.brand-text {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.brand-name {
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		font-size: 1.1rem;
+	}
+
+	.brand-tagline {
+		font-size: 0.75rem;
+		color: var(--hh-muted);
+	}
+
+	.site-nav {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.nav-link {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.4rem 0.9rem;
+		font-size: 0.9rem;
+		color: var(--hh-muted);
+		text-decoration: none;
+		border-radius: 999px;
+		transition:
+			background-color 160ms ease,
+			color 160ms ease,
+			box-shadow 160ms ease;
+	}
+
+	.nav-link:hover,
+	.nav-link:focus-visible {
+		color: var(--hh-text);
+		background-color: var(--hh-accent-soft);
+		box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+		outline: none;
+	}
+
+	.page-main {
+		flex: 1;
+		max-width: 1120px;
 		width: 100%;
-		height: 100%;
+		margin: 1.75rem auto 2.75rem;
+		padding: 0 1.25rem;
+	}
+
+	.site-footer {
+		border-top: 1px solid var(--hh-border);
+		padding: 1.25rem 1.5rem 1.75rem;
+		font-size: 0.8rem;
+		color: var(--hh-muted);
+		text-align: center;
+		background: rgba(249, 250, 251, 0.96);
+	}
+
+	@media (max-width: 640px) {
+		.site-header {
+			padding-inline: 1rem;
+			gap: 0.75rem;
+		}
+
+		.brand-text {
+			display: none;
+		}
+
+		.page-main {
+			margin-top: 1.25rem;
+		}
 	}
 </style>
