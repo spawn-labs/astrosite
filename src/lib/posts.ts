@@ -1,4 +1,4 @@
-import healthData from '../../../healthnew/healthhearty.json';
+import healthData from '../../healthhearty.json';
 
 export interface Post {
 	id: string;
