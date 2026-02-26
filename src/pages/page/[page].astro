@@ -25,6 +25,11 @@ interface Props {
 }
 
 const { posts, currentPage, totalPages } = Astro.props as Props;
+
+const imageEntries = await Promise.all(
+	posts.map(async (post) => [post.slug, await getUnsplashImageForSlug(post.slug)] as const)
+);
+const imagesBySlug = Object.fromEntries(imageEntries);
 ---
 
 <Layout
@@ -42,19 +47,19 @@ const { posts, currentPage, totalPages } = Astro.props as Props;
 
 	<section aria-label={`Health Hearty articles page ${currentPage}`} class="posts-grid">
 		{posts.map((post) => {
-			const image = getUnsplashImageForSlug(post.slug);
+			const image = imagesBySlug[post.slug];
 			return (
 				<article class="post-card" aria-labelledby={`post-${post.slug}`}>
-					<a href={`/posts/${post.slug}/`} class="post-image-link" aria-hidden="true" tabindex={-1}>
+					<a href={`/${post.slug}/`} class="post-image-link" aria-hidden="true" tabindex={-1}>
 						<img src={image.src} alt={post.title} loading="lazy" class="post-image" />
 					</a>
 					<div class="post-body">
 						<h2 id={`post-${post.slug}`} class="post-title">
-							<a href={`/posts/${post.slug}/`}>{post.title}</a>
+							<a href={`/${post.slug}/`}>{post.title}</a>
 						</h2>
 						<p class="post-excerpt">{post.excerpt}</p>
 						<div class="post-meta">
-							<a href={`/posts/${post.slug}/`} class="read-more">Read article</a>
+							<a href={`/${post.slug}/`} class="read-more">Read article</a>
 							<span class="image-credit">
 								Photo by{' '}
 								<a href={image.photographerUrl} target="_blank" rel="noopener noreferrer">

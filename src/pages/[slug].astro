@@ -1,7 +1,7 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { getAllPosts } from '../../lib/posts';
-import { getUnsplashImageForSlug } from '../../lib/images';
+import Layout from '../layouts/Layout.astro';
+import { getAllPosts } from '../lib/posts';
+import { getUnsplashImageForSlug } from '../lib/images';
 
 export function getStaticPaths() {
 	const posts = getAllPosts();
@@ -13,11 +13,11 @@ export function getStaticPaths() {
 }
 
 interface Props {
-	post: import('../../lib/posts').Post;
+	post: import('../lib/posts').Post;
 }
 
 const { post } = Astro.props as Props;
-const image = getUnsplashImageForSlug(post.slug);
+const image = await getUnsplashImageForSlug(post.slug);
 ---
 
 <Layout title={post.title} description={post.excerpt}>
